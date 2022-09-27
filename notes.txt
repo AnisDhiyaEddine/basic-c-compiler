@@ -1,0 +1,70 @@
+ToDo: 
+ 2- Implement variables support (Semantical analyzer).
+
+
+09/09/2022 notes: 
+ -> Today will be working on loops.
+ -> Still have to work on functions.
+ -> Code a turing machine support model.
+ 
+
+
+loops: for(){}, while(){}, do{}while().
+
+for (E1; E2; E3) I;
+
+
+E1, 
+While (E2){
+    I, 
+    E3
+}
+
+do { I; E1 } while(E2)
+
+Implement a loop node {
+    if(!T) break;
+    I;
+}
+
+Implement a break node;
+Implement a third type;
+        // I -> while '(' E ')' I;
+        // I -> do I while '(' E ');'; 
+        // I -> for '(' E ';' E ';' E ) I
+        // break;
+
+        // while
+        // Node('break'); Node('loop')->Node('cond')->Node(E) -> Node(I);
+        //                                                       Node('break');
+
+        // do {} while();
+        // Node('loop') -> Node(I) 
+        //              -> Node('cond') -> Node('!') -> Node(E)
+        //                              -> Node('break');
+
+        // for(Einit, Etest, Enext){};
+        // Node('Seq') -> Node('init')
+        //             -> Node('loop') -> Node(I)
+        //                             -> Node(continue) // not required :) 
+        //                             -> Node(next)
+        //                             -> Node(cond)  -> Node(not) -> Node(test)
+        //                                            -> Node(break)
+
+
+
+
+=> Done: 
+ -> tokens generation. (TESTED)
+ -> comments, spaces and pre-processors skipping. (TESTED)
+ -> mathemathical expressions evaluation. (TESTED)
+ -> typed variable declarations (type deduction is not yet supported). (TESTED) .. edge cases should be verified
+ -> deeply nested if-else or if expressions. (TESTED)
+
+
+
+
+To be discussed: 
+ -> Is it possible to have code outside block ? 
+ -> Consts re-affectation => should be easy.
+ -> 
