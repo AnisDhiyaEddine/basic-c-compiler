@@ -1,38 +1,17 @@
 .start
-push 5
+push 99
+set 0
+loop_1
+get 0
 push 10
-cmple
-jumpf endIf_1
-push 2
-push 3
-cmpeq
-jumpf endIf_2
-push 1
-push 2
-cmpeq
-jumpf endIf_3
-endIf_3
-endIf_2
-endIf_1
-push 1
-push 1
-cmpgt
-jumpf endIf_4
-endIf_4
-push 1
-push 1
-cmpgt
-jumpf else_1
-push 1
-push 1
 cmplt
-jumpf endIf_5
-push 777
-set 4
-endIf_5
-jump endIfElse_1
-else_1
-push 2
-set 5
-endIfElse_1
+jumpf endLoop_1
+get 0
+push 1
+add
+set 0
+push 5
+set 1
+jump loop_1
+endLoop_1
 .halt

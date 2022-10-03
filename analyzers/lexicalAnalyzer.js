@@ -92,7 +92,7 @@ const tokenize = ({word, index}) => {
 
         tokens = wordPieces.map(word => {
             if(TokenTypes[word]) return new Token(word, '', {line: index});
-            if(parseFloat(word) || parseInt(word)) return new Token("const", word, { line: index });
+            if(parseFloat(word) || parseInt(word) || word == 0) return new Token("const", word, { line: index });
             return new Token("identifier", word, { line: index });
         });
 

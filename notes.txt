@@ -45,11 +45,16 @@ Implement a third type;
 
         // for(Einit, Etest, Enext){};
         // Node('Seq') -> Node('init')
-        //             -> Node('loop') -> Node(I)
-        //                             -> Node(continue) // not required :) 
-        //                             -> Node(next)
-        //                             -> Node(cond)  -> Node(not) -> Node(test)
+        //             -> Node('loop') -> Node(next)
+        //                             -> Node(I)
+        //                             -> Node(cond)  -> Node(test)
         //                                            -> Node(break)
+
+
+
+Today we will see functions
+-> Still have to add dyncamically allocated memory [dyncamic arrays].
+-> Structs (won't be added in our compilator) -> arrays are supported because we have the same type inside arrays.
 
 
 

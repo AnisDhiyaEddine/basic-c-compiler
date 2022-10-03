@@ -15,7 +15,7 @@ class CodeGen {
         switch(node?.token?.type){
             case "const": 
             case "var":
-                if(node.token.adr){
+                if(node.token.adr >= 0){
                     this.print("get " + node.token.adr);
                 } else {
                     this.print("push " + node.token.value); // const value could be directly pushed
@@ -84,7 +84,7 @@ class CodeGen {
                 this.print("cmpne");
             break;   
             case "=":
-                this.genNode(node.child_2); // Evaluer l'expression à affecter
+                this.genNode(node.child_2); // Evaluate the expression to assign
                 this.print("set " + node.child_1.token.adr);
             break;
             case 'ifElse': 
@@ -107,13 +107,48 @@ class CodeGen {
                 this.genNode(node.child_2);
                 this.print(`endIf_${currentLabel}`);
                 break;
+            case 'decl': // Already treated do not print anything while declaring new var [Semantical analyzer is doing the job].
+            break;
             case 'sec': 
-            break;
-            case 'block': 
-            break;
-            case 'decl':
+                this.genNode(node.child_1); // print the initialization.
+                this.genNode(node.child_2); // print the loop
             break;
             case 'loop':
+                this.loopLabel++;
+                currentLabel = this.loopLabel;
+                switch(node.childsNbr){
+                    case 1 :  // while loop
+                        this.print(`loop_${currentLabel}`)
+                        this.genNode(node.child_1.child_1); // condition should be printed
+                        node.child_1.child_3.breakLabel = currentLabel;
+                        this.genNode(node.child_1.child_3); // break if condition is not satisfied
+                        this.genNode(node.child_1.child_2); // execute instructions if everything is fine
+                        this.print(`jump loop_${currentLabel}`);
+                        this.print(`endLoop_${currentLabel}`);
+                    break;
+                    case 2 : // do while loop
+                        this.print(`loop_${currentLabel}`)
+                        this.genNode(node.child_1); // instructions shoud be printed
+                        this.genNode(node.child_2.child_1); // condition should be printed
+                        node.child_2.child_2.breakLabel = currentLabel;
+                        this.genNode(node.child_2.child_2);
+                        this.print(`jump loop_${currentLabel}`)
+                        this.print(`endLoop_${currentLabel}`);
+                    break;
+                    default: // For loop [Already initialized]
+                        this.print(`loop_${currentLabel}`)
+                        this.genNode(node.child_3.child_1);
+                        node.child_3.child_2.breakLabel = currentLabel;
+                        this.genNode(node.child_3.child_2); // break part
+                        this.genNode(node.child_1); // next execution
+                        this.genNode(node.child_2); // instructions execution
+                        this.print(`jump loop_${currentLabel}`)
+                        this.print(`endLoop_${currentLabel}`);
+                    break;
+                }
+            break;
+            case 'break': 
+                this.print(`jumpf endLoop_${node.breakLabel}`);
             break;
             default: 
                 // check and handle other cases for now just print for the childs and skip what is given to u in order
@@ -134,68 +169,5 @@ const codeGenerator = (root, globalContext) => {
 }
 
 
-
-
 module.exports = codeGenerator;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const genNode = (node) => {
-//     // genNode(if)
-//     // genNode(else)
-//     // genNode(sec)
-//     // genNode(block)
-//     // --------------------
-//     // function genNode(loop) {
-//     //     int temp = label_break;
-//     //     label_break = nbLabel++;
-//     //     let label_1 = nbLabel++;
-//     //     this.print(".l " + label_1);
-//     //     loop.children.forEach(child => {
-//     //         genNode(child);
-//     //         this.print("jump l" + label_1);
-//     //         this.print(".l" + label_break);
-//     //     });
-//     //     label_break = temp;
-//     // 
-//     // }
-//     // --------------------
-//     // genNode(break){
-//     //     this.print("jump l" + label_break);
-//     // }
-// }

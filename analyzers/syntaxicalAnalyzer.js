@@ -112,6 +112,61 @@ const syntaxicalAnalyzer = (next, globalContext) => {
             } while(check(','));
             accept(';');
             return dec;
+        } else if(check('while')){
+            let loopNode = new Node(new Token('loop'));
+            accept('(');
+            let condNode = new Node(new Token('cond'), E());
+            accept(')');
+            if(check('{')){
+                let blockNode = new Node(new Token("{"));
+                while(!check("}")) blockNode.addChild(I());
+                condNode.addChild(blockNode)
+                condNode.addChild(new Node(new Token('break')));
+            } else {
+                condNode.addChild(I());
+                condNode.addChild(new Node(new Token('break')));
+            };
+            loopNode.addChild(condNode);
+            return loopNode;
+        } else if(check('do')){
+            let loopNode = new Node(new Token('loop'));
+            if(check('{')){
+                let blockNode = new Node(new Token("{"));
+                while(!check("}")) blockNode.addChild(I());
+                loopNode.addChild(blockNode)
+            } else {
+                loopNode.addChild(I());
+            }
+            accept('while');
+            accept('(');
+            let condNode = new Node(new Token('cond'));
+            condNode.addChild(E());
+            condNode.addChild(new Node(new Token('break')));
+            loopNode.addChild(condNode);
+            accept(')');
+            accept(';');
+            return loopNode;
+
+        } else if(check('for')){
+            let loopNode = new Node(new Token('loop'));
+            let seqNode = new Node(new Token('seq')); // seq for sequence
+            let condNode = new Node(new Token('cond'));
+            accept('(');
+            seqNode.addChild(E()); // Init child
+            accept(',');
+            condNode.addChild(E()); // conditions
+            accept(',');
+            loopNode.addChild(E()); // next
+            accept(')');
+            if(check('{')) {
+                let blockNode = new Node(new Token("{"));
+                while(!check("}")) blockNode.addChild(I());
+                loopNode.addChild(blockNode)
+                condNode.addChild(new Node(new Token('break')));
+                loopNode.addChild(condNode)
+            }
+            seqNode.addChild(loopNode);
+            return seqNode;
         } else {
             let expNode = E();
             accept(';');
