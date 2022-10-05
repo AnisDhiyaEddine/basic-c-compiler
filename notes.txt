@@ -1,3 +1,4 @@
+
 ToDo: 
  2- Implement variables support (Semantical analyzer).
 
@@ -55,7 +56,57 @@ Implement a third type;
 Today we will see functions
 -> Still have to add dyncamically allocated memory [dyncamic arrays].
 -> Structs (won't be added in our compilator) -> arrays are supported because we have the same type inside arrays.
+[For non stack machines, registered machines -> another step that is very complicated should be added after the semantical analysis
+step].
 
+-> 1st: should add a stack pointer and update it regularly (SP)
+-> 2nd: should add a base pointer (BP)
+-> stack [BP*, ..... SP*, BP*, @ret, functionCALL, ...] (restore when the function returns).
+-> drop() when I finish the evaluation of an expression I -> E ; à checker.
+-> In our case we have to make 2 instructions 
+[
+    prep label_funtion
+    call 0 for now 
+] This is a function call :);
+label_function 
+... instructions should end with an RET.
+ret;
+
+inside F in the syntacixal analyzer
+return type, accept it properly
+ident () I instead of ident(){}
+ident () I is a prototype when I is just a ; 
+useful when 
+int A(){
+    B();
+}
+int B(){
+    A();
+} // this won't be supported in my compiler.
+
+Node(new Token('func', 'valueName'), child_1 = null, child_2 = I); 
+=> Function declaration is now supported
+
+=> Function calls: 
+-> should be added in A();
+-> ident"(" ")" a sepecial case before the creation 
+
+
+#CodeGEN contract = 
+    do not touch what doesn't belong to you
+    Leave a single value when you finish
+    Do whatever you want on the top :)
+
+
+
+==> Pour le debug :) to print(1024) should decompose and transform to ASCII code
+I -> Send E     => Node(send) -> E()
+A -> recv       => Node(recv)
+
+==> Petite fonction de transformation en code ASCII :).
+==> code printf for printing numbers.
+==> Next.. runtime concept.
+==> Will add a runtime file that contains print, dyncamic_mem managment: malloc, realloc, free.
 
 
 

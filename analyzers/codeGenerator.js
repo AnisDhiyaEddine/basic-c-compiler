@@ -1,6 +1,7 @@
+const semanticalAnalyze = require('./semanticalAnalyzer');
 
 class CodeGen {
-    asmCode = '.start\n';
+    asmCode = '';
     ifElseLabel = 0;
     ifLabel = 0;
     loopLabel = 0;
@@ -41,7 +42,7 @@ class CodeGen {
                 this.genNode(node.child_2);
                 this.print("/");
             break;              
-            case "!": // should be verified
+            case "!": // should be implemented
             break;              
             case "&&": 
                 this.genNode(node.child_1);
@@ -150,6 +151,22 @@ class CodeGen {
             case 'break': 
                 this.print(`jumpf endLoop_${node.breakLabel}`);
             break;
+            case 'function': 
+                this.print(`.${node.token.value}`); 
+                this.print(`resn ${node.numVars}`);
+                this.genNode(node.child_2);
+                this.print('push 0'); // this could be a dead code [Pas grave ;)]
+                this.print('ret\n');
+            break;
+            case 'call': // two instructions to handle params as local variables stack [..., BP, @ret, arg1, arg2, loc1, ....]
+                this.print(`prep ${node.token.value}`);
+                for(let i=1; i <= node.childsNbr; i++) this.genNode(node[`child_${i}`]);
+                this.print(`call ${node.childsNbr}`);
+            break;
+            case 'return': 
+                this.genNode(node.child_1);
+                this.print('ret');
+            break;
             default: 
                 // check and handle other cases for now just print for the childs and skip what is given to u in order
                 for(let i = 1; i <= node.childsNbr; i++){
@@ -161,10 +178,13 @@ class CodeGen {
 }
 
 
-const codeGenerator = (root, globalContext) => {
+const codeGenerator = (globalContext) => {
     const generator = new CodeGen();
-    generator.genNode(root);
-    generator.asmCode += ".halt\n";
+    do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
+    generator.print(".start");
+    generator.print("prep main");
+    generator.print("call 0");
+    generator.print(".halt");
     return generator.asmCode;
 }
 

@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const TokenTypes = {
     return: 'return',
     int: 'int',
@@ -103,8 +105,8 @@ const tokenize = ({word, index}) => {
     return tokens
 }
 
-const lexicalAnalyzer = (code, globalContext) => { 
-    
+const lexicalAnalyze = (globalContext) => { 
+    const code = fs.readFileSync('programs/main.c', {encoding:'utf8', flag:'r'});
     const getTokens = () => {
         const tokens = [];
         let lines = code.split("\n").map(line => line.trim());
@@ -155,8 +157,10 @@ const lexicalAnalyzer = (code, globalContext) => {
         }
     };
 
-    next(); // Initialize the context
+    if(! Object.keys(globalContext.current).length) {
+        next(); // Initialize the context
+    }
     return next;
 }
 
-module.exports = lexicalAnalyzer;
+module.exports = lexicalAnalyze;

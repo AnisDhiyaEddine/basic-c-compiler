@@ -128,3 +128,54 @@
 //         x = 5;
 //     }
 // }
+
+
+
+// int main() {
+//     int x;
+//     x = 10;
+//     return 5;
+// }
+
+// int x() {
+//     int y,z,v;
+//     v = 10;
+//     if(1 > 1){
+//         int x;
+//         x = 2;
+//     }
+
+//     main(4, 1 + 9, 5);
+// }
+
+
+
+// int main(int a, int b) {
+//     a = 10;
+// }
+
+// int x(){
+//     int x, y, z;
+//     main(10, 11);
+//     return 2;
+// }
+
+
+
+// int x(int a, int b){
+//     // int z;
+//     // return 4;
+// }
+
+int main(){
+    // int Mitra, Bashen;
+    // int a_a;
+    // Mitra = 2;
+    // Bashen = Mitra;
+    // int amour;
+    // amour = Bashen + Mitra + x(2, 3);
+    // return amour;
+}
+
+// handle drop after I();
+// Elyas: Après une affectations un dup

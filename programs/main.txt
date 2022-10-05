@@ -1,17 +1,9 @@
+.main
+resn 0
+push 0
+ret
+
 .start
-push 99
-set 0
-loop_1
-get 0
-push 10
-cmplt
-jumpf endLoop_1
-get 0
-push 1
-add
-set 0
-push 5
-set 1
-jump loop_1
-endLoop_1
+prep main
+call 0
 .halt
