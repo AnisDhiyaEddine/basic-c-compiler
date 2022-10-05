@@ -161,21 +161,103 @@
 // }
 
 
-
 // int x(int a, int b){
-//     // int z;
-//     // return 4;
+//     int z;
+//     z = 10;
+//     return 4;
 // }
 
-int main(){
-    // int Mitra, Bashen;
-    // int a_a;
-    // Mitra = 2;
-    // Bashen = Mitra;
-    // int amour;
-    // amour = Bashen + Mitra + x(2, 3);
-    // return amour;
-}
+// int v(double z){
+//     int k;
+// }
+
+
+// int main(){
+//     int Mitra, Bashen;
+//     int a_a;
+//     Mitra = 2;
+//     Bashen = Mitra;
+//     int amour;
+//     amour = Bashen + Mitra + x(2, 3);
+//     return amour;
+// }
 
 // handle drop after I();
 // Elyas: Après une affectations un dup
+
+// int main(){
+//     int *p;
+//     int *v;
+//     *p = 5;
+//     &p = 2;
+//     *p = &p;
+// }
+
+// int x(){
+//     int v;
+//     v = 1;
+//     while(v < 1000){
+//         v = v * 10;
+//     } // exit with 1000
+//     v = v + 99;
+//     return v;
+// }
+
+
+// int main(){
+//     int z;
+//     z = x();
+// }
+
+
+// int main(){
+//     int v, z, x;
+//     // ---
+//     // v = 10;
+//     // z = &v;
+//     // *z = 55; // this should modify the value of v [should work on this].
+//     // ---
+
+//     // v = 78;
+//     // z = 65533;
+//     // x = *z; // should put the value of v in x [working].
+
+//     // v = 78;
+//     // z = &v;
+//     // *z = 100; // should put 100 on v
+//     // x = *z; // should put 100 on x [worknig]
+// }
+
+// problem of DECL in functions params
+// int ok(int value){
+//     return value / 10;
+// }
+
+// int fib(int val){
+//     if(val < 2) return val;
+//     return fib(val - 1) + fib(val - 2);
+// }
+
+// int main(){
+//     int x, y, counter;
+//     x = 0;
+//     y = 0;
+//     while(x < 10){
+//         while(y < 10){
+//             printf(counter);
+//             counter = counter + 1;
+//             y = y + 1;
+//         }
+//         y = 0;
+//         x = x + 1;
+//     }
+// }
+
+
+int main(){
+    int T, Z;
+    T = malloc(4);
+    Z = malloc(5);
+    T = 2;
+    printf(2);
+}

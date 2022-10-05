@@ -1,8 +1,9 @@
-const fs = require('fs');
 
+const fs = require('fs');
 const TokenTypes = {
     return: 'return',
     int: 'int',
+    void: 'void',
     double: 'double',
     float: 'float',
     const: 'const',
@@ -14,10 +15,10 @@ const TokenTypes = {
     do: 'do',
     break: 'break',
     continue: 'continue', 
-    printf: 'printf',
-    scanf: 'scanf',
     id: "id",
     eos: 'eos',
+    printf: '', // Skip xxTypexx for now
+    __send__: '__send__',
     "\"": "\"",
     "\'": "\'",
     "+": "+",
@@ -40,13 +41,13 @@ const TokenTypes = {
     "]": "]",
     "{": "{",
     "}": "}",
+    "[": "[",
+    "]": "]",
     "!": "!",
     "&": "&",
     ",": ",",
     ";": ";"
 }
-
-const Types = ["string", "int", "float", "double"]; // simple and double precisions SKIPPED FOR NOW
 
 class Token {
     constructor(type, value = null, position = null){
@@ -70,7 +71,6 @@ const idGen = {
 const tokenize = ({word, index}) => {
     let wordPieces = []
     let tokens = []
-
     if(typeof(word) == 'string'){
         word = word.replace(/\s/g, '');
         let matchedType = '';
@@ -82,7 +82,6 @@ const tokenize = ({word, index}) => {
                     matchedType = type;
                 }
             }
-    
             if( typeIndex > 0 ) {
                 wordPieces.push(word.substring(0, typeIndex));
                 word = word.substring(typeIndex)
@@ -106,7 +105,7 @@ const tokenize = ({word, index}) => {
 }
 
 const lexicalAnalyze = (globalContext) => { 
-    const code = fs.readFileSync('programs/main.c', {encoding:'utf8', flag:'r'});
+    const code = fs.readFileSync(globalContext.path, {encoding:'utf8', flag:'r'});
     const getTokens = () => {
         const tokens = [];
         let lines = code.split("\n").map(line => line.trim());
@@ -151,7 +150,6 @@ const lexicalAnalyze = (globalContext) => {
             globalContext.current = new Token("eos", TokenTypes["eos"], {})
         } else if((globalContext.pos > globalContext.tokens.length)){
             return;
-           // throw new Error("You've already reached the end of file");
         } else {
             globalContext.current = globalContext.tokens[globalContext.pos];
         }

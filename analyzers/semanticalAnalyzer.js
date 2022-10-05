@@ -8,12 +8,12 @@ class semanticalAnalyzer {
      * @returns identifier passed in param in case of success
      */
     declare(identifier, globalContext){
-       globalContext.symbolsTable[globalContext.symbolsTable.length - 1].forEach(({id}) => {
+        globalContext.symbolsTable[globalContext.symbolsTable.length - 1].forEach(({id}) => {
             if(id == identifier.id){
                 throw `Symbol ${identifier.id} redeclared`;
             }
         });
-       globalContext.symbolsTable[globalContext.symbolsTable.length - 1]?.push(identifier);
+        globalContext.symbolsTable[globalContext.symbolsTable.length - 1]?.push(identifier);
         return identifier;
     }
 
@@ -69,18 +69,20 @@ class semanticalAnalyzer {
             case 'const':
             case 'var': 
             break;
+            case '=': 
+                if(node.childsNbr < 2) throw 'Invalid affectation on line: ' + node.token.position.line;
+                this.semanticalAnalyze(node.child_1, globalContext);
+                this.semanticalAnalyze(node.child_2, globalContext);
+            break;
             case 'identifier':
-                // inference de type + meta attachment
                 node.token.adr = this.find({id: node.token.value}, globalContext).adr;
                 node.token.type = this.find({id: node.token.value}, globalContext).type;
                 node.token.meta = this.find({id: node.token.value}, globalContext).meta;
             break;
             case 'function': 
                 this.declare({id: node.token.value, type: 'function'}, globalContext);
-                // add begin bloc [already handled]
                 if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext); // no loop since I have a bloc :)
-                // add end bloc [already handled]
                 node.type = 'function';
                 if(node.child_1){
                     node.numVars = this.numVars - node.child_1.childsNbr;
@@ -92,6 +94,15 @@ class semanticalAnalyzer {
                 if(this.find({id: node.token.value}, globalContext).type != 'function' ){
                     throw `No function is defined with the name " ${node.token.value} "`;
                 }
+                for(let i = 1; i <= node.childsNbr; i++){
+                    this.semanticalAnalyze(node[`child_${i}`], globalContext);
+                }            break;
+            case 'adr': 
+                if((this.find({id: node.child_1.token.value}, globalContext)).type != 'var') throw 'Invalid refrence';
+                node.numVar = this.find({id: node.child_1.token.value}, globalContext).adr
+            break;
+            case 'point': 
+                this.semanticalAnalyze(node.child_1, globalContext);
             break;
             default: 
                 for(let i = 1; i <= node.childsNbr; i++){

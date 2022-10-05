@@ -1,4 +1,5 @@
 const semanticalAnalyze = require('./semanticalAnalyzer');
+const fs = require('fs');
 
 class CodeGen {
     asmCode = '';
@@ -35,12 +36,17 @@ class CodeGen {
             case "*": 
                 this.genNode(node.child_1);
                 this.genNode(node.child_2);
-                this.print("*");
+                this.print("mul");
             break;     
             case "/": 
                 this.genNode(node.child_1);
                 this.genNode(node.child_2);
-                this.print("/");
+                this.print("div");
+            break;   
+            case "%": 
+            this.genNode(node.child_1);
+            this.genNode(node.child_2);
+            this.print("mod");
             break;              
             case "!": // should be implemented
             break;              
@@ -84,9 +90,22 @@ class CodeGen {
                 this.genNode(node.child_2);
                 this.print("cmpne");
             break;   
-            case "=":
-                this.genNode(node.child_2); // Evaluate the expression to assign
-                this.print("set " + node.child_1.token.adr);
+            case "=": // should re-work this part.
+                if(node.child_1.token.type == 'var'){
+                    this.genNode(node.child_2); // Evaluate the expression to assign
+                    this.print('dup');
+                    this.print("set " + node.child_1.token.adr);
+                }else if(node.child_1.token.type == 'point'){ // handle writing on left *id
+                    node.child_1.write = true;
+                    this.genNode(node.child_2); // put value to respect the contract
+                    this.genNode(node.child_1); // put adr on the stack
+                    this.genNode(node.child_2); // put value on the stack
+                    this.print('write');
+                } else { // handle reading on right *id
+                    this.genNode(node.child_2); // read
+                    this.print('dup');
+                    this.genNode(node.child_1);
+                }
             break;
             case 'ifElse': 
                 // Evaluate the condition, the result will be on the top of my stack
@@ -95,10 +114,10 @@ class CodeGen {
                 this.genNode(node.child_1);
                 this.print(`jumpf else_${currentLabel}`);
                 this.genNode(node.child_2);
-                this.print(`jump endIfElse_${currentLabel}`);
-                this.print(`else_${currentLabel}`);
+                this.print(`jump endIf_Else_${currentLabel}`);
+                this.print(`.else_${currentLabel}`);
                 this.genNode(node.child_3);
-                this.print(`endIfElse_${currentLabel}`);
+                this.print(`.endIf_Else_${currentLabel}`);
                 break;
             case 'if':
                 this.ifLabel++;
@@ -106,9 +125,13 @@ class CodeGen {
                 this.genNode(node.child_1);
                 this.print(`jumpf endIf_${currentLabel}`);
                 this.genNode(node.child_2);
-                this.print(`endIf_${currentLabel}`);
+                this.print(`.endIf_${currentLabel}`);
                 break;
-            case 'decl': // Already treated do not print anything while declaring new var [Semantical analyzer is doing the job].
+            case 'drop': // to be checked
+                this.genNode(node.child_1);
+                this.print('drop');
+            break;
+            case 'decl': //
             break;
             case 'sec': 
                 this.genNode(node.child_1); // print the initialization.
@@ -119,32 +142,32 @@ class CodeGen {
                 currentLabel = this.loopLabel;
                 switch(node.childsNbr){
                     case 1 :  // while loop
-                        this.print(`loop_${currentLabel}`)
+                        this.print(`.loop_${currentLabel}`)
                         this.genNode(node.child_1.child_1); // condition should be printed
                         node.child_1.child_3.breakLabel = currentLabel;
                         this.genNode(node.child_1.child_3); // break if condition is not satisfied
                         this.genNode(node.child_1.child_2); // execute instructions if everything is fine
                         this.print(`jump loop_${currentLabel}`);
-                        this.print(`endLoop_${currentLabel}`);
+                        this.print(`.endLoop_${currentLabel}`);
                     break;
                     case 2 : // do while loop
-                        this.print(`loop_${currentLabel}`)
+                        this.print(`.loop_${currentLabel}`)
                         this.genNode(node.child_1); // instructions shoud be printed
                         this.genNode(node.child_2.child_1); // condition should be printed
                         node.child_2.child_2.breakLabel = currentLabel;
                         this.genNode(node.child_2.child_2);
                         this.print(`jump loop_${currentLabel}`)
-                        this.print(`endLoop_${currentLabel}`);
+                        this.print(`.endLoop_${currentLabel}`);
                     break;
                     default: // For loop [Already initialized]
-                        this.print(`loop_${currentLabel}`)
+                        this.print(`.loop_${currentLabel}`)
                         this.genNode(node.child_3.child_1);
                         node.child_3.child_2.breakLabel = currentLabel;
                         this.genNode(node.child_3.child_2); // break part
                         this.genNode(node.child_1); // next execution
                         this.genNode(node.child_2); // instructions execution
                         this.print(`jump loop_${currentLabel}`)
-                        this.print(`endLoop_${currentLabel}`);
+                        this.print(`.endLoop_${currentLabel}`);
                     break;
                 }
             break;
@@ -155,10 +178,10 @@ class CodeGen {
                 this.print(`.${node.token.value}`); 
                 this.print(`resn ${node.numVars}`);
                 this.genNode(node.child_2);
-                this.print('push 0'); // this could be a dead code [Pas grave ;)]
+                this.print('push 0');
                 this.print('ret\n');
             break;
-            case 'call': // two instructions to handle params as local variables stack [..., BP, @ret, arg1, arg2, loc1, ....]
+            case 'call':
                 this.print(`prep ${node.token.value}`);
                 for(let i=1; i <= node.childsNbr; i++) this.genNode(node[`child_${i}`]);
                 this.print(`call ${node.childsNbr}`);
@@ -166,6 +189,19 @@ class CodeGen {
             case 'return': 
                 this.genNode(node.child_1);
                 this.print('ret');
+            break;
+            case 'point': 
+                this.genNode(node.child_1);
+                if(!node.write) this.print('read');
+            break;
+            case 'adr':
+                this.print("prep adrof");
+                this.print(`push ${node.numVar}`);
+                this.print("call 1");        
+            break;
+            case '__send__': 
+                this.genNode(node.child_1); // put a value to print on the stack
+                this.print("send");
             break;
             default: 
                 // check and handle other cases for now just print for the childs and skip what is given to u in order
@@ -180,11 +216,18 @@ class CodeGen {
 
 const codeGenerator = (globalContext) => {
     const generator = new CodeGen();
+
+    globalContext.path = 'programs/runtime.c'
     do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
-    generator.print(".start");
-    generator.print("prep main");
-    generator.print("call 0");
-    generator.print(".halt");
+    globalContext.current = {};
+    globalContext.last = {};
+    globalContext.pos = -1;
+    globalContext.tokens = [];
+    globalContext.path = 'programs/main.c';
+    do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
+    // ligne 191 nx <-> tp msm.c compile and retry [what was the problem ??]
+    generator.print(".adrof\nget -1\nget 0\nsub\npush 1\nsub\nret\n"); // To handle get pointer adr
+    generator.print(".start\nprep main\ncall 0\nhalt");
     return generator.asmCode;
 }
 

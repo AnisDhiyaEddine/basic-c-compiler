@@ -9,7 +9,7 @@ class Token {
     }
 }
 
-const Types = ["string", "int", "float", "double"]; // simple and double precisions SKIPPED FOR NOW
+const Types = ["string", "int", "float", "double", "void"]; // simple and double precisions SKIPPED FOR NOW
 
 class Node {
     childsNbr = 0;
@@ -83,7 +83,7 @@ const syntaxicalAnalyze = (globalContext) => {
         if(checkType(globalContext.current.type)){
             let type = globalContext.last.type;
             let funcIdent = globalContext.current.value;
-            let func = new Node(new Token('function', funcIdent), null); // instead of null inject the list of params inside a Decl node
+            let func = new Node(new Token('function', funcIdent), null);
             func.token.meta = {type};
             accept('identifier');
             accept('('); 
@@ -95,7 +95,8 @@ const syntaxicalAnalyze = (globalContext) => {
             do{
                 if(!checkType(globalContext.current.type)) throw `Invalid declaration in function " ${funcIdent} ".`;
                 type = globalContext.current.last;
-                dec.addChild(new Node(new Token('const', globalContext.current.value, globalContext.current.position, {type}))); // for later when I add types
+                dec.addChild(new Node(new Token('const', globalContext.current.value,
+                 globalContext.current.position, {type}))); // for later when I add types
                 next();
             } while(check(','));
             accept(')'); 
@@ -108,7 +109,7 @@ const syntaxicalAnalyze = (globalContext) => {
     const I = () => {
         if(check("if")){
             accept("(");
-            let testNode = new Node(new Token("drop"), E());
+            let testNode = E();
             accept(")");
             let thenNode = I();
             if(check("else")){
@@ -121,6 +122,7 @@ const syntaxicalAnalyze = (globalContext) => {
         } else if(check("{")) {
             let blockNode = new Node(new Token("{"));
             while(!check("}")) blockNode.addChild(I());
+            check(';'); // Skip unnecessary ;
             return blockNode;
         } else if(check('const') && checkType(globalContext.current.type)){
             let dec = new Node(new Token("decl"));
@@ -149,6 +151,7 @@ const syntaxicalAnalyze = (globalContext) => {
             if(check('{')){
                 let blockNode = new Node(new Token("{"));
                 while(!check("}")) blockNode.addChild(I());
+                check(';'); // Skip unnecessary ';'
                 condNode.addChild(blockNode)
                 condNode.addChild(new Node(new Token('break')));
             } else {
@@ -162,6 +165,7 @@ const syntaxicalAnalyze = (globalContext) => {
             if(check('{')){
                 let blockNode = new Node(new Token("{"));
                 while(!check("}")) blockNode.addChild(I());
+                check(';'); // Skip unnecessary ; 
                 loopNode.addChild(blockNode)
             } else {
                 loopNode.addChild(I());
@@ -178,18 +182,19 @@ const syntaxicalAnalyze = (globalContext) => {
 
         } else if(check('for')){
             let loopNode = new Node(new Token('loop'));
-            let seqNode = new Node(new Token('seq')); // seq for sequence
+            let seqNode = new Node(new Token('seq'));
             let condNode = new Node(new Token('cond'));
             accept('(');
             seqNode.addChild(E()); // Init child
-            accept(',');
+            accept(';');
             condNode.addChild(E()); // conditions
-            accept(',');
+            accept(';');
             loopNode.addChild(E()); // next
             accept(')');
             if(check('{')) {
                 let blockNode = new Node(new Token("{"));
                 while(!check("}")) blockNode.addChild(I());
+                check(';'); // Skip unncessary ;
                 loopNode.addChild(blockNode)
                 condNode.addChild(new Node(new Token('break')));
                 loopNode.addChild(condNode)
@@ -200,11 +205,19 @@ const syntaxicalAnalyze = (globalContext) => {
             let expNode = E();
             accept(';');
             return new Node(new Token('return'), expNode);
+        } else if(check("__send__")){
+            accept("(");
+            check("\""); // skip " if encountered
+            let expNode = E();
+            check("\""); // skip " if encountered
+            accept(')');
+            accept(';');
+            return new Node(new Token('__send__'), expNode);
         } else {
             let expNode = E();
-            accept(';');
-            return expNode;
-        };
+            check(';'); // check or accept ?? [modified because of indexation]
+            return new Node(new Token('drop'), expNode);
+        }; 
     }
 
     const E = (pMin = 0) => {
@@ -224,7 +237,6 @@ const syntaxicalAnalyze = (globalContext) => {
     }
 
     const P = () => {
-        // Here we will have *pointer :)
         if(check('-') || check('+') || check('!')){
             return  new Node(globalContext.last, P());
         } else if(check('*')){
@@ -236,8 +248,19 @@ const syntaxicalAnalyze = (globalContext) => {
         }
     }
 
-    const S = () => {
-        return A();
+    const S = () => { // Always geos here
+        // Add support for arrays indexation T[] 
+        // A('[' E() ']')*
+        // Easy way -> node(token('Index'), A, E)
+        // En C T[x] <==> *(T + x)
+        // Another way: node(token('point'), node(token('add'), A, E)); [check the creation of new nodes in case of multiple indexations].
+        let node = A();
+        if(check('[')){
+            let exp = E();
+            node = new Node(new Token('point'), new Node(new Token('add'), node, exp));
+            accept[']'];
+        }
+        return node;
     }
 
     const A = () => {
@@ -247,7 +270,10 @@ const syntaxicalAnalyze = (globalContext) => {
             accept(')');
             return exp;
         } else if (check('const')) {
-            if(globalContext.last.value) return new Node(globalContext.last);
+            if(globalContext.last.value) {
+                return new Node(globalContext.last);
+            }
+            // Check this out later
             next();
             return new Node(globalContext.last, A());
         } else if(check('identifier')) { 
@@ -269,8 +295,5 @@ const syntaxicalAnalyze = (globalContext) => {
 
     return G();
 }
-
-
-
 
 module.exports = syntaxicalAnalyze;

@@ -62,7 +62,8 @@ step].
 -> 1st: should add a stack pointer and update it regularly (SP)
 -> 2nd: should add a base pointer (BP)
 -> stack [BP*, ..... SP*, BP*, @ret, functionCALL, ...] (restore when the function returns).
--> drop() when I finish the evaluation of an expression I -> E ; à checker.
+-> 
+() when I finish the evaluation of an expression I -> E ; à checker.
 -> In our case we have to make 2 instructions 
 [
     prep label_funtion
@@ -110,6 +111,15 @@ A -> recv       => Node(recv)
 
 
 
+
+[contrat]: 
+-> don't modify the bottom of the stack.
+-> E() -> should leave a value on the top of the stack
+-> I() -> should leave nothing on the top of the stack -> start with dup and dump today.
+
+// next time malloc and free.
+
+
 => Done: 
  -> tokens generation. (TESTED)
  -> comments, spaces and pre-processors skipping. (TESTED)
@@ -124,3 +134,62 @@ To be discussed:
  -> Is it possible to have code outside block ? 
  -> Consts re-affectation => should be easy.
  -> 
+
+
+ // Today last session we will check the indexation + arrays + runtime file (print function and other handy stuff).
+
+ -> Indexation: 
+ t[3] -> 1st possibilty in S (suffix) or au niveau de l'A same as T(3).
+ int toto(int x){
+
+ } => stack: [...., @ret, BP, x, .....]
+
+int T ;
+T = malloc(3);
+T[1]; 
+mem [@adr 1st free, code, Free, stack]; // 64K byte with -m option I get 4Mo else modify a constant in the code :)
+// we will take 4k byte for the stack :)
+
+int malloc(int n){
+    int p, r; 
+    p = 0;
+    r = *p; // 1st free case is 1000 for instance
+    *p = *p + n; // add n and re-write on the first adress.
+    return r; // return adress of allocated space
+}
+
+int free(int p){};
+
+------------ [OPTIONAL] ------------
+mem: [size, ..., size]
+
+1st allocation the size is useful while freeing the block.
+mem: [10, [10 elements], 10, -size, [], -size] sizes positive: already allocated else you can allocate on it :)
+free just alter the sign of size :)
+check the case before if it's negative delete two coulumns -> fusion and go recursively with this operation and update the sizes :()
+To handle the fragmentation, check the best fit instead of the first fit (worst fit)
+------------------------------------
+For memory allocator
+runtime
+ malloc, free, setup, print, ...
+user
+.start 
+prep setup
+call 0
+prep main 
+call 0
+halt
+
+
+runtime 
+ malloc, free, print(int n) => show it on the console :)
+ 
+ #exemple
+ print(n){ // this function should be implemented in c-- :)
+    if(n < 10) send n + 48; // works for n from 0 to 9 // debug instruction should be checked :)
+    else split and call again print for each char :)
+    send 10; // retour à la ligne :)
+ }
+
+case 'call': // two instructions to handle params as local variables stack [..., BP, @ret, arg1, arg2, loc1, ....]
+
