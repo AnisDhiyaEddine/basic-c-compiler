@@ -83,26 +83,36 @@ resn 0
 push 0
 ret
 
+.fib
+resn 0
+get 0
+push 2
+cmplt
+jumpf endIf_2
+get 0
+ret
+.endIf_2
+prep fib
+get 0
+push 1
+sub
+call 1
+prep fib
+get 0
+push 2
+sub
+call 1
+add
+ret
+push 0
+ret
+
 .main
-resn 2
-prep malloc
-push 4
-call 1
-dup
-set 0
-drop
-prep malloc
-push 5
-call 1
-dup
-set 1
-drop
-push 2
-dup
-set 0
-drop
+resn 0
 prep printf
-push 2
+prep fib
+push 10
+call 1
 call 1
 drop
 push 0

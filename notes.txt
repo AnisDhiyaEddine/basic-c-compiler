@@ -193,3 +193,8 @@ runtime
 
 case 'call': // two instructions to handle params as local variables stack [..., BP, @ret, arg1, arg2, loc1, ....]
 
+
+
+// Refactor 
+// Handle functions number of arguments passed :)
+// Handle function calls with an invalid arguments number

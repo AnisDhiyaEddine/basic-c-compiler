@@ -1,24 +1,7 @@
 
 const fs = require('fs');
-const TokenTypes = {
-    return: 'return',
-    int: 'int',
-    void: 'void',
-    double: 'double',
-    float: 'float',
-    const: 'const',
-    if: 'if',
-    else: 'else',
-    switch: 'switch',
-    for: 'for',
-    while: 'while',
-    do: 'do',
-    break: 'break',
-    continue: 'continue', 
-    id: "id",
-    eos: 'eos',
-    printf: '', // Skip xxTypexx for now
-    __send__: '__send__',
+
+const Operators = {
     "\"": "\"",
     "\'": "\'",
     "+": "+",
@@ -47,6 +30,32 @@ const TokenTypes = {
     "&": "&",
     ",": ",",
     ";": ";"
+}
+
+const Keywords = {
+    return: 'return',
+    int: 'int',
+    void: 'void',
+    double: 'double',
+    float: 'float',
+    const: 'const',
+    if: 'if',
+    else: 'else',
+    switch: 'switch',
+    for: 'for',
+    while: 'while',
+    do: 'do',
+    break: 'break',
+    continue: 'continue', 
+    id: "id",
+    eos: 'eos',
+    printf: '',
+    __send__: '__send__',
+}
+
+const TokenTypes = {
+    ...Operators,
+    ...Keywords
 }
 
 class Token {
@@ -138,21 +147,32 @@ const lexicalAnalyze = (globalContext) => {
             word.forEach(token => tokens.push(token))
         })
 
-        return [...tokens, new Token("eos")];
+        // // handle xxTypexx && xxType declarations
+        let tempTokens = [];
+        for(let i=0; i < tokens.length; i++){
+            if(tokens[i]?.type == 'identifier' && Keywords[tokens[i + 1].type] && tokens[i + 2]?.type == 'identifier'){
+                tokens[i].value += tokens[i + 1]?.type + tokens[i + 2]?.value;
+                tempTokens.push(tokens[i]);
+                i+= 2;
+            } else if(tokens[i]?.type == 'identifier' && Keywords[tokens[i + 1]?.type] ){
+                tokens[i].value += tokens[i + 1].type;
+                tempTokens.push(tokens[i]);
+                i+=1;
+            } else {
+                tempTokens.push(tokens[i]);
+            }
+        }
+        return [...tempTokens, new Token('eos')];
     }
+
 
     globalContext.tokens = getTokens();
 
     const next = () => {
         globalContext.last = globalContext.current;
         globalContext.pos++;
-        if(globalContext.pos == globalContext.tokens.length){
-            globalContext.current = new Token("eos", TokenTypes["eos"], {})
-        } else if((globalContext.pos > globalContext.tokens.length)){
-            return;
-        } else {
-            globalContext.current = globalContext.tokens[globalContext.pos];
-        }
+        globalContext.current = globalContext.tokens[globalContext.pos];
+
     };
 
     if(! Object.keys(globalContext.current).length) {

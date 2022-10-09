@@ -239,6 +239,10 @@
 // }
 
 // int main(){
+//     printf(fib(10));
+// }
+
+// int main(){
 //     int x, y, counter;
 //     x = 0;
 //     y = 0;
@@ -253,11 +257,14 @@
 //     }
 // }
 
+// int main(){
+//     int T;
+//     T = malloc(5);
+//     T[3] = 2;
+//     T[2] = malloc(4);
+//     T[2][1] = 11;
 
-int main(){
-    int T, Z;
-    T = malloc(4);
-    Z = malloc(5);
-    T = 2;
-    printf(2);
-}
+//     printf(T[3]);
+//     printf(T[2][1]);
+// }
+

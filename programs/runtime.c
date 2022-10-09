@@ -15,7 +15,7 @@ void printf(int number){
     return printf(number % counter);
 };
 
-int malloc(int size){ // The idea is clear still have to functionnaly test it
+int malloc(int size){
     int p, r; 
     p = 0;
     r = *p;

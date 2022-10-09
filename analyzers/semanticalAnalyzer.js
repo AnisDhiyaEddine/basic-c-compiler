@@ -70,9 +70,11 @@ class semanticalAnalyzer {
             case 'var': 
             break;
             case '=': 
-                if(node.childsNbr < 2) throw 'Invalid affectation on line: ' + node.token.position.line;
+                let valid = ['var', 'point', 'adr'];
+                if(node.childsNbr < 2) throw 'Invalid assignation on line: ' + node.token.position.line;
                 this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
+                if(!valid.includes(node.child_1.token.type)) throw "Invalid assignation";
             break;
             case 'identifier':
                 node.token.adr = this.find({id: node.token.value}, globalContext).adr;
@@ -82,7 +84,7 @@ class semanticalAnalyzer {
             case 'function': 
                 this.declare({id: node.token.value, type: 'function'}, globalContext);
                 if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
-                this.semanticalAnalyze(node.child_2, globalContext); // no loop since I have a bloc :)
+                this.semanticalAnalyze(node.child_2, globalContext);
                 node.type = 'function';
                 if(node.child_1){
                     node.numVars = this.numVars - node.child_1.childsNbr;
