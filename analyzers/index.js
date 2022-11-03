@@ -1,4 +1,4 @@
-const lexicalAnalyzer = require('./lexicalAnalyzer');
+const lexicalAnalyzer = require('../Dep/lexicalAnalyzerDep');
 const syntaxicalAnalyzer = require('./syntaxicalAnalyzer');
 const semanticalAnalyzer = require('./semanticalAnalyzer');
 const codeGenerator = require('./codeGenerator');

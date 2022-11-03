@@ -4,7 +4,7 @@ const { codeGenerator } = require("./analyzers");
 const globalContext = {
     tokens: [],
     path: '',
-    symbolsTable : [[]], // global context
+    symbolsTable : [[]],
     current: {},
     last: {},
     pos: -1

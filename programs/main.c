@@ -259,12 +259,32 @@
 
 // int main(){
 //     int T;
+//     int index;
+//     index = 3;
 //     T = malloc(5);
 //     T[3] = 2;
 //     T[2] = malloc(4);
 //     T[2][1] = 11;
 
-//     printf(T[3]);
+//     printf(T[index]);
 //     printf(T[2][1]);
 // }
 
+
+// int fib(int val){
+//     if(val < 2) return val;
+//     return fib(val - 1) + fib(val - 2);
+// }
+
+// int main(){
+//    printf(fib(10));
+// }
+
+
+int printer(int a, int b){
+    printf(a + b);
+}
+
+int main(){
+    printer(10, 555, 4);
+}

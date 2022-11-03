@@ -74,18 +74,23 @@ class semanticalAnalyzer {
                 if(node.childsNbr < 2) throw 'Invalid assignation on line: ' + node.token.position.line;
                 this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
-                if(!valid.includes(node.child_1.token.type)) throw "Invalid assignation";
+
+                if (!valid.includes(node.child_1.token.type)) {
+                    console.log(node.child_1)
+                    throw "Invalid assignation";
+                }
             break;
             case 'identifier':
                 node.token.adr = this.find({id: node.token.value}, globalContext).adr;
                 node.token.type = this.find({id: node.token.value}, globalContext).type;
-                node.token.meta = this.find({id: node.token.value}, globalContext).meta;
+                node.token.meta = this.find({ id: node.token.value }, globalContext).meta;
+                if (node.token.type == 'function') throw `Invalid function call: ${node.token.value} on line ${node.token.position.line}`;
             break;
             case 'function': 
-                this.declare({id: node.token.value, type: 'function'}, globalContext);
+                this.declare({id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr}, globalContext);
                 if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
-                node.type = 'function';
+                // node.type = 'function';
                 if(node.child_1){
                     node.numVars = this.numVars - node.child_1.childsNbr;
                 } else {
@@ -98,7 +103,10 @@ class semanticalAnalyzer {
                 }
                 for(let i = 1; i <= node.childsNbr; i++){
                     this.semanticalAnalyze(node[`child_${i}`], globalContext);
-                }            break;
+                }
+                if (this.find({ id: node.token.value }, globalContext).argsNum != node.childsNbr)
+                    throw `Invalid function call [ ${node.token.value} found ${node.childsNbr} instead of ${this.find({ id: node.token.value }, globalContext).argsNum} arg]`;
+                break;
             case 'adr': 
                 if((this.find({id: node.child_1.token.value}, globalContext)).type != 'var') throw 'Invalid refrence';
                 node.numVar = this.find({id: node.child_1.token.value}, globalContext).adr

@@ -95,7 +95,7 @@ const syntaxicalAnalyze = (globalContext) => {
             do{
                 if(!checkType(globalContext.current.type)) throw `Invalid declaration in function " ${funcIdent} ".`;
                 type = globalContext.current.last;
-                dec.addChild(new Node(new Token('const', globalContext.current.value,
+                dec.addChild(new Node(new Token('var', globalContext.current.value,
                  globalContext.current.position, {type}))); // for later when I add types
                 next();
             } while(check(','));
@@ -121,7 +121,7 @@ const syntaxicalAnalyze = (globalContext) => {
             return new Node(new Token("if"), testNode, thenNode);
         } else if(check("{")) {
             let blockNode = new Node(new Token("{"));
-            while(!check("}")) blockNode.addChild(I());
+            while (!check("}")) blockNode.addChild(I());
             check(';');
             return blockNode;
         } else if(check('const') && checkType(globalContext.current.type)){
