@@ -1,5 +1,9 @@
 
 void printf(int number){
+    if(number < 0){
+        __send__(45);
+        number = -number;
+    }
     if(number < 10){
         __send__(number + 48);
         __send__(10); // to break the line
@@ -13,6 +17,7 @@ void printf(int number){
     counter = counter / 10;
     __send__(number / counter + 48);
     return printf(number % counter);
+
 };
 
 int malloc(int size){

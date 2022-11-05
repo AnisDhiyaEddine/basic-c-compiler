@@ -1,4 +1,4 @@
-const lexicalAnalyze = require('./lexicalAnalyzer');
+const {lexicalAnalyze, Punctuators} = require('./lexicalAnalyzer');
 
 class Token {
     constructor(type, value = null, position = null, meta = null){
@@ -69,7 +69,7 @@ const syntaxicalAnalyze = (globalContext) => {
 
     const accept = (type) => {
         if(!check(type)) {
-            throw Error("Invalid type Expected " + type + " got " + globalContext.current.type);
+            throw Error("Invalid type Expected " + type + " got " + globalContext.current.type) + " line: " + globalContext.current.position.line;
         }
     }
     
@@ -248,7 +248,7 @@ const syntaxicalAnalyze = (globalContext) => {
         }
     }
 
-    const S = () => { // Construct a full tree for multiple indexations
+    const S = () => {
         let node = A();
         let exp;
         while(check('[')){
@@ -269,7 +269,6 @@ const syntaxicalAnalyze = (globalContext) => {
             if(globalContext.last.value) {
                 return new Node(globalContext.last);
             }
-            // Check this out later
             next();
             return new Node(globalContext.last, A());
         } else if (check('identifier')) { 
@@ -292,4 +291,4 @@ const syntaxicalAnalyze = (globalContext) => {
     return G();
 }
 
-module.exports = syntaxicalAnalyze;
+module.exports = {syntaxicalAnalyze, Punctuators};

@@ -24,13 +24,23 @@ class CodeGen {
                 }
             break;
             case "+":
-                this.genNode(node.child_1);
-                this.genNode(node.child_2);
+                if (node.child_2) {
+                    this.genNode(node.child_1);
+                    this.genNode(node.child_2);
+                } else {
+                    this.print('push 0');
+                    this.genNode(node.child_1);
+                }
                 this.print("add");
             break;
-            case "-": 
-                this.genNode(node.child_1);
-                this.genNode(node.child_2);
+            case "-":
+                if (node.child_2) {
+                    this.genNode(node.child_1);
+                    this.genNode(node.child_2);
+                } else {
+                    this.print('push 0');
+                    this.genNode(node.child_1);
+                }
                 this.print("sub");
             break;       
             case "*": 

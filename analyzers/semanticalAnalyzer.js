@@ -1,4 +1,4 @@
-const syntaxicalAnalyze = require('./syntaxicalAnalyzer');
+const {syntaxicalAnalyze, Punctuators} = require('./syntaxicalAnalyzer');
 
 class semanticalAnalyzer {
     numVars = 0;
@@ -56,7 +56,14 @@ class semanticalAnalyzer {
             break;
             case 'decl':
                 for(let i = 1; i <= node.childsNbr; i++){
-                    if(node[`child_${i}`]){
+                    if (node[`child_${i}`]) {
+                        if (parseInt(node[`child_${i}`].token.value[0]) >= 0)
+                            throw `Invalid variable name [ ${node[`child_${i}`].token.value} ] line: ${node[`child_${i}`].token.position.line}`;
+                        // Will be rejected before it gets to here, to be checked.
+                        // for (let key in Punctuators) {
+                        //     if (node[`child_${i}`].token.value.includes(key))
+                        //         throw `Invalid variable name [ ${node[`child_${i}`].token.value} ] line: ${node[`child_${i}`].token.position.line}`;
+                        // }
                         this.declare({id: node[`child_${i}`].token.value,
                         type: node[`child_${i}`].token.type,
                         meta: node[`child_${i}`].token.meta,
@@ -74,9 +81,7 @@ class semanticalAnalyzer {
                 if(node.childsNbr < 2) throw 'Invalid assignation on line: ' + node.token.position.line;
                 this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
-
                 if (!valid.includes(node.child_1.token.type)) {
-                    console.log(node.child_1)
                     throw "Invalid assignation";
                 }
             break;
@@ -87,7 +92,7 @@ class semanticalAnalyzer {
                 if (node.token.type == 'function') throw `Invalid function call: ${node.token.value} on line ${node.token.position.line}`;
             break;
             case 'function': 
-                this.declare({id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr}, globalContext);
+                this.declare({id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr || 0}, globalContext);
                 if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
                 // node.type = 'function';
@@ -113,7 +118,8 @@ class semanticalAnalyzer {
             break;
             case 'point': 
                 this.semanticalAnalyze(node.child_1, globalContext);
-            break;
+                break;
+            
             default: 
                 for(let i = 1; i <= node.childsNbr; i++){
                     this.semanticalAnalyze(node[`child_${i}`], globalContext);

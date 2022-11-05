@@ -50,7 +50,7 @@ const Keywords = {
 }
 
 const isNumber = (str) => {
-    if (parseInt(str) >= 0) return true;
+    if (parseInt(str) >= 0) return `${parseInt(str)}` === str;
     return false;
 }
 
@@ -59,8 +59,6 @@ const isKeyword = (str) => {
     return false;
 }
 
-
-// isPunctuator
 const isPunctuator = (str) => {
     if (Punctuators[str]) return true;
     return false;
@@ -114,7 +112,6 @@ const tokenize = ({line, index}) => {
     return tokens;
 }
 
-
 class Token {
     constructor(type, value = null, position = null){
         this.type = type;
@@ -122,7 +119,6 @@ class Token {
         this.position = position;
     }
 }
-
 
 
 const lexicalAnalyze = (globalContext) => { 
@@ -157,4 +153,4 @@ const lexicalAnalyze = (globalContext) => {
     return next;
 }
 
-module.exports = lexicalAnalyze;
+module.exports = {lexicalAnalyze, Punctuators};
