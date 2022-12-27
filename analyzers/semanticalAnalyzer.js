@@ -59,11 +59,6 @@ class semanticalAnalyzer {
                     if (node[`child_${i}`]) {
                         if (parseInt(node[`child_${i}`].token.value[0]) >= 0)
                             throw `Invalid variable name [ ${node[`child_${i}`].token.value} ] line: ${node[`child_${i}`].token.position.line}`;
-                        // Will be rejected before it gets to here, to be checked.
-                        // for (let key in Punctuators) {
-                        //     if (node[`child_${i}`].token.value.includes(key))
-                        //         throw `Invalid variable name [ ${node[`child_${i}`].token.value} ] line: ${node[`child_${i}`].token.position.line}`;
-                        // }
                         this.declare({id: node[`child_${i}`].token.value,
                         type: node[`child_${i}`].token.type,
                         meta: node[`child_${i}`].token.meta,
@@ -92,10 +87,9 @@ class semanticalAnalyzer {
                 if (node.token.type == 'function') throw `Invalid function call: ${node.token.value} on line ${node.token.position.line}`;
             break;
             case 'function': 
-                this.declare({id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr || 0}, globalContext);
+                this.declare({ id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr || 0 }, globalContext);
                 if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
                 this.semanticalAnalyze(node.child_2, globalContext);
-                // node.type = 'function';
                 if(node.child_1){
                     node.numVars = this.numVars - node.child_1.childsNbr;
                 } else {

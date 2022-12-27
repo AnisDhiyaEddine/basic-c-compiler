@@ -1,0 +1,17 @@
+.main
+resn 1
+push 0
+ret
+
+.adrof
+get -1
+get 0
+sub
+push 1
+sub
+ret
+
+.start
+prep main
+call 0
+halt

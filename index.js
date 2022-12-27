@@ -14,6 +14,7 @@ const globalContext = {
 
 const main = () => {
     fs.writeFileSync("./programs/main.txt", codeGenerator(globalContext));
+    console.log(globalContext.symbolsTable)
 
     // globalContext.path = './programs/main.c';
     // lexicalAnalyze(globalContext);

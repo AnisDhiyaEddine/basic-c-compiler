@@ -6,6 +6,7 @@ class CodeGen {
     ifElseLabel = 0;
     ifLabel = 0;
     loopLabel = 0;
+    currentLoop = [];
 
     print(str){
         this.asmCode += str + "\n";
@@ -58,7 +59,9 @@ class CodeGen {
             this.genNode(node.child_2);
             this.print("mod");
             break;              
-            case "!": // should be implemented
+            case "!":
+                this.genNode(node.child_1);
+                this.print("not");
             break;              
             case "&&": 
                 this.genNode(node.child_1);
@@ -149,6 +152,7 @@ class CodeGen {
             break;
             case 'loop':
                 this.loopLabel++;
+                this.currentLoop.push(this.loopLabel);
                 currentLabel = this.loopLabel;
                 switch(node.childsNbr){
                     case 1 :  // while loop
@@ -180,9 +184,14 @@ class CodeGen {
                         this.print(`.endLoop_${currentLabel}`);
                     break;
                 }
+                this.currentLoop.pop();
             break;
             case 'break': 
-                this.print(`jumpf endLoop_${node.breakLabel}`);
+                if (node.breakLabel) {
+                    this.print(`jumpf endLoop_${node.breakLabel}`);
+                } else {
+                    this.print(`jump endLoop_${this.currentLoop[this.currentLoop.length - 1]}`);
+                }
             break;
             case 'function': 
                 this.print(`.${node.token.value}`); 
@@ -233,9 +242,9 @@ const codeGenerator = (globalContext) => {
     globalContext.last = {};
     globalContext.pos = -1;
     globalContext.tokens = [];
+    
     globalContext.path = 'programs/main.c';
     do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
-    // ligne 191 nx <-> tp msm.c compile and retry [what was the problem ??]
     generator.print(".adrof\nget -1\nget 0\nsub\npush 1\nsub\nret\n"); // To handle get pointer adr
     generator.print(".start\nprep main\ncall 0\nhalt");
     return generator.asmCode;

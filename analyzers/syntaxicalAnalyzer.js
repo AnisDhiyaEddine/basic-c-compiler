@@ -201,6 +201,9 @@ const syntaxicalAnalyze = (globalContext) => {
             }
             seqNode.addChild(loopNode);
             return seqNode;
+        } else if (check('break')) {
+            accept(';');
+            return new Node(new Token('break'));
         } else if(check('return')){
             let expNode = E();
             accept(';');
