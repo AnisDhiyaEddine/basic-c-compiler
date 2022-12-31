@@ -178,8 +178,8 @@ class CodeGen {
                         this.genNode(node.child_3.child_1);
                         node.child_3.child_2.breakLabel = currentLabel;
                         this.genNode(node.child_3.child_2); // break part
-                        this.genNode(node.child_1); // next execution
                         this.genNode(node.child_2); // instructions execution
+                        this.genNode(node.child_1); // next execution
                         this.print(`jump loop_${currentLabel}`)
                         this.print(`.endLoop_${currentLabel}`);
                     break;
@@ -233,19 +233,19 @@ class CodeGen {
 }
 
 
-const codeGenerator = (globalContext) => {
+const codeGenerator = (globalContext, inputFile = "") => {
     const generator = new CodeGen();
 
-    globalContext.path = 'programs/runtime.c'
+    globalContext.path = './analyzers/runtime.c'
     do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
     globalContext.current = {};
     globalContext.last = {};
     globalContext.pos = -1;
     globalContext.tokens = [];
     
-    globalContext.path = 'programs/main.c';
+    globalContext.path = inputFile;
     do { generator.genNode(semanticalAnalyze(globalContext)) } while(globalContext.current.type != 'eos');
-    generator.print(".adrof\nget -1\nget 0\nsub\npush 1\nsub\nret\n"); // To handle get pointer adr
+    generator.print(".adrof\nget -1\nget 0\nsub\npush 1\nsub\nret\n");
     generator.print(".start\nprep main\ncall 0\nhalt");
     return generator.asmCode;
 }

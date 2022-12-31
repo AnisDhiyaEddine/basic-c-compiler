@@ -83,11 +83,11 @@ const syntaxicalAnalyze = (globalContext) => {
         if(checkType(globalContext.current.type)){
             let type = globalContext.last.type;
             let funcIdent = globalContext.current.value;
-            let func = new Node(new Token('function', funcIdent), null);
+            let func = new Node(new Token('function', funcIdent, globalContext.current.position), null);
             func.token.meta = {type};
             accept('identifier');
             accept('('); 
-            if(check(')')) {
+            if (check(')')) {
                 func.child_2 = I();
                 return func;
             }

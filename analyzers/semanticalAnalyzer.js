@@ -7,12 +7,28 @@ class semanticalAnalyzer {
      * @param identifier {id: criteria of comparaison with symbols table content, ...}
      * @returns identifier passed in param in case of success
      */
-    declare(identifier, globalContext){
+    declare(identifier, globalContext) {
+        // Like this a function can call another declared before it
+        if (identifier.type == 'function') {
+            if(globalContext.symbolsTable[0].find((id) => id.id == identifier.id)){
+                throw `Function " ${identifier.id} " is already declared.`;
+            }
+            globalContext.symbolsTable[0].push(identifier);
+        }
+
+        if (globalContext.symbolsTable.length == 3) {
+            if (globalContext.symbolsTable[1].find((id) => id.id == identifier.id)) {
+                throw `Symbol " ${identifier.id} " is already declared.`;
+            }
+        }
+
+
         globalContext.symbolsTable[globalContext.symbolsTable.length - 1].forEach(({id}) => {
             if(id == identifier.id){
-                throw `Symbol ${identifier.id} redeclared`;
+                throw `Symbol ${identifier.id} is already declared.`;
             }
         });
+
         globalContext.symbolsTable[globalContext.symbolsTable.length - 1]?.push(identifier);
         return identifier;
     }
@@ -35,16 +51,17 @@ class semanticalAnalyzer {
         throw `Symbol " ${identifier.id} " is not declared.`
     }
 
-    blocStart(globalContext){
-       globalContext.symbolsTable.push([]);
+    blocStart(globalContext) {
+        globalContext.symbolsTable.push([]);
     }
+
 
     blocEnd(globalContext){
        globalContext.symbolsTable.pop();
     }
 
     // From now I won't support types [ToBeChecked LATER]
-    semanticalAnalyze(node, globalContext){
+    semanticalAnalyze(node, globalContext) {
         switch(node.token.type){
             case '{':
                 this.blocStart(globalContext);
@@ -87,14 +104,21 @@ class semanticalAnalyzer {
                 if (node.token.type == 'function') throw `Invalid function call: ${node.token.value} on line ${node.token.position.line}`;
             break;
             case 'function': 
-                this.declare({ id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr || 0 }, globalContext);
-                if(node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
-                this.semanticalAnalyze(node.child_2, globalContext);
+                if (node.token.value[0] >= 0) throw `Invalid function name: ${node.token.value} on line ${node.token.position.line}`;
+                this.blocStart(globalContext);
+                this.declare({ id: node.token.value, type: 'function', argsNum: node?.child_1?.childsNbr || 0 }, globalContext); 
+                if (node.child_1) this.semanticalAnalyze(node.child_1, globalContext);
+                
+
+                this.semanticalAnalyze(node.child_2, globalContext); 
+
+
                 if(node.child_1){
                     node.numVars = this.numVars - node.child_1.childsNbr;
                 } else {
                     node.numVars = this.numVars;
                 }
+                this.blocEnd(globalContext);
             break;
             case 'call': 
                 if(this.find({id: node.token.value}, globalContext).type != 'function' ){
